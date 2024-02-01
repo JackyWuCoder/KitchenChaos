@@ -15,8 +15,41 @@ public class Player : MonoBehaviour {
 
         Vector2 inputVector = gameInput.GetMovementVectorNormalized();
         Vector3 moveDir = new Vector3(inputVector.x, 0f, inputVector.y);
-        // Time.deltaTime makes the movements framerate independent; will not move faster based on higher fps
-        transform.position += moveDir * moveSpeed * Time.deltaTime;
+
+        float moveDistance = moveSpeed * Time.deltaTime;
+        float playerSize = 0.7f;
+        float playerRadius = 2f;
+        // we can move if Raycast does not hit anything
+        bool canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerRadius, playerSize, moveDir, moveDistance);
+
+        if (!canMove) {
+            // Cannot move towards moveDir
+
+            // Attempt only x movement
+            Vector3 moveDirX = new Vector3(moveDir.x, 0, 0).normalized;
+            canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerRadius, playerSize, moveDirX, moveDistance);
+            if (canMove) {
+                // Can move only on the X 
+                moveDir = moveDirX;
+            } else {
+                // Cannot move only on the X
+
+                // Attempt only Z movement
+                Vector3 moveDirZ = new Vector3(0, 0, moveDir.z).normalized;
+                canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerRadius, playerSize, moveDirZ, moveDistance);
+                if (canMove) {
+                    // can move only on the Z
+                    moveDir = moveDirZ;
+                } else { 
+                    // Cannot move in any direction
+                }
+            }
+
+        }
+        if (canMove) {
+            // Time.deltaTime makes the movements framerate independent; will not move faster based on higher fps
+            transform.position += moveDir * moveDistance;
+        }
 
         isWalking = moveDir != Vector3.zero;
 
