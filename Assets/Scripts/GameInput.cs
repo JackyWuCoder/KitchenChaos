@@ -18,8 +18,6 @@ public class GameInput : MonoBehaviour
         // normalizing the vector so that going diagonally will be same speed as WASD
         inputVector = inputVector.normalized;
 
-        Debug.Log(inputVector);
-
         return inputVector;
     }
 }
